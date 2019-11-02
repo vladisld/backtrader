@@ -67,3 +67,9 @@ samples2/
 
 # Ignore test files in Datas
 datas/*.py
+
+# PyCharm configuration
+.idea/
+
+# GitHub access tokens
+access.token

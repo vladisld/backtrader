@@ -408,7 +408,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
 
     def reqdata(self):
         '''request real-time data. checks cash vs non-cash) and param useRT'''
-        if self.contract is None:
+        if self.contract is None or self._state == self._ST_LIVE:
             return
 
         if self._usertvol:

@@ -401,6 +401,7 @@ class IBStore(with_metaclass(MetaSingleton, object)):
         # kickstrat datas, not returning until all of them have been done
         ts = list()
         for data in self.datas:
+
             t = threading.Thread(target=data.reqdata)
             t.start()
             ts.append(t)
