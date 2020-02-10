@@ -410,7 +410,6 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
     def reqdata(self):
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         if self.contract is None or self._subcription_valid:
-            print('ReqData: ignoring reqMktData for {}. Either contract is invalid or already subscribed'.format(self._name))
             return
 
         if self._usertvol:
@@ -418,7 +417,6 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
         else:
             self.qlive = self.ib.reqRealTimeBars(self.contract)
 
-        print('ReqData: reqMktData for {} is issued.'.format(self._name))
         self._subcription_valid = True
         return self.qlive
 
