@@ -22,6 +22,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import datetime
+import time
 
 import backtrader as bt
 from backtrader.feed import DataBase
@@ -512,6 +513,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                     self._subcription_valid = False
                     if not self._statelivereconn:
                         self._statelivereconn = self.p.backfill
+                        time.sleep(2)
                         self.reqdata()  # resubscribe
                     continue
 
