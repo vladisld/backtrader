@@ -411,6 +411,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
     def reqdata(self):
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         if self.contract is None or self._subcription_valid:
+            print('req data ignored: {}'.format(self._name))
             return
 
         if self._usertvol:
@@ -419,6 +420,7 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
             self.qlive = self.ib.reqRealTimeBars(self.contract)
 
         self._subcription_valid = True
+        print('req data: {}'.format(self._name))
         return self.qlive
 
     def canceldata(self):
@@ -430,6 +432,9 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
             self.ib.cancelMktData(self.qlive)
         else:
             self.ib.cancelRealTimeBars(self.qlive)
+
+        self._subcription_valid = False
+        print('req data cancelled: {}'.format(self._name))
 
     def haslivedata(self):
         return bool(self._storedmsg or self.qlive)
@@ -509,11 +514,22 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                         self.reqdata()  # resubscribe
                     continue
 
+                elif msg == -2105:  # A historical data farm is disconnected
+                    # wait for the 2106 (A historical data farm is connected)
+                    # to resubscribe
+                    self.canceldata()
+                    self._statelivereconn = self.p.backfill
+                    continue
+
+                elif msg == -2106:  # A historical data farm is connected
+                    self._statelivereconn = self.p.backfill
+                    self.reqdata()
+                    continue
+
                 elif msg == -10225:  # Bust event occurred, current subscription is deactivated.
-                    self._subcription_valid = False
                     if not self._statelivereconn:
                         self._statelivereconn = self.p.backfill
-                        time.sleep(2)
+                        self.canceldata()
                         self.reqdata()  # resubscribe
                     continue
 
