@@ -527,16 +527,6 @@ class IBStore(with_metaclass(MetaSingleton, object)):
             for q in self.ts:  # key: queue -> ticker
                 q.put(-msg.errorCode)
 
-        elif msg.errorCode == 2105:
-            # A historical data farm is disconnected.
-            for q in self.ts:
-                q.put(-msg.errorCode)
-
-        elif msg.errorCode == 2106:
-            # A historical data farm is connected.
-            for q in self.ts:
-                q.put(-msg.errorCode)
-
         elif msg.errorCode < 500:
             # Given the myriad of errorCodes, start by assuming is an order
             # error and if not, the checks there will let it go

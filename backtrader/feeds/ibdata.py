@@ -514,18 +514,6 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
                         self.reqdata()  # resubscribe
                     continue
 
-                elif msg == -2105:  # A historical data farm is disconnected
-                    # wait for the 2106 (A historical data farm is connected)
-                    # to resubscribe
-                    self.canceldata()
-                    self._statelivereconn = self.p.backfill
-                    continue
-
-                elif msg == -2106:  # A historical data farm is connected
-                    self._statelivereconn = self.p.backfill
-                    self.reqdata()
-                    continue
-
                 elif msg == -10225:  # Bust event occurred, current subscription is deactivated.
                     if not self._statelivereconn:
                         self._statelivereconn = self.p.backfill
