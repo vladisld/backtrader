@@ -47,6 +47,9 @@ coverage.xml
 # Django stuff:
 *.log
 
+# PyCharm dirs:
+.idea
+
 # Sphinx documentation
 docs/_build/
 docs2/_build/
@@ -67,9 +70,3 @@ samples2/
 
 # Ignore test files in Datas
 datas/*.py
-
-# PyCharm configuration
-.idea/
-
-# GitHub access tokens
-access.token
