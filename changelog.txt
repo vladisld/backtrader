@@ -1,3 +1,28 @@
+1.9.74.123:
+  - Correct calculation in haDelta indicator
+  - Use initial datalabel for non-overlaid volume plot
+
+1.9.73.123:
+  - Add utility NonZeroDifference indicator
+  - Redefine CrossUp, CrossDown and CrossOver indicators using
+    NonZeroDifference to cover the case in which the crossing entities
+    converge right before crossing up and down
+  - PR #382 (Travis: Python 3.7, 3.8-dev travis), PR #383 PivotPoint doc
+
+1.9.72.122:
+  - Cover case in which result in high-level overridden operations have
+    multiple lines and wer not be taken into account for minimum period
+    calculations
+  - Add "Int" variants of percentage based sizers to import
+  - Trades observer to show net profit instead of brutto, with parameter
+    to control behavior
+
+1.9.71.122:
+  - Improve on indicator legend plotting to overcome matplotlib legend
+    reordering
+  - Added PercenSizerInt and AllSizerInt which truncate the returned size
+    to an int, suited better for stocks/futures
+
 1.9.70.122:
   - Use opening price for submission check for Market orders when
     cheat-on-open is active
