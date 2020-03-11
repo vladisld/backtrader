@@ -1515,7 +1515,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
         dt0 = date2num(datetime.datetime.max) - 2  # default at max
         while d0ret or d0ret is None:
             # if any has live data in the buffer, no data will wait anything
-            newqcheck = not any(d.haslivedata() for d in datas)
+            newqcheck = True #not any(d.haslivedata() for d in datas)
             # if not newqcheck:
             #     # If no data has reached the live status or all, wait for
             #     # the next incoming data
