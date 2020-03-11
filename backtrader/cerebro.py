@@ -1516,11 +1516,11 @@ class Cerebro(with_metaclass(MetaParams, object)):
         while d0ret or d0ret is None:
             # if any has live data in the buffer, no data will wait anything
             newqcheck = not any(d.haslivedata() for d in datas)
-            if not newqcheck:
-                # If no data has reached the live status or all, wait for
-                # the next incoming data
-                livecount = sum(d._laststatus == d.LIVE for d in datas)
-                newqcheck = not livecount or livecount == ldatas_noclones
+            # if not newqcheck:
+            #     # If no data has reached the live status or all, wait for
+            #     # the next incoming data
+            #     livecount = sum(d._laststatus == d.LIVE for d in datas)
+            #     newqcheck = not livecount or livecount == ldatas_noclones
 
             lastret = False
             # Notify anything from the store even before moving datas
