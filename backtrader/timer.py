@@ -90,8 +90,9 @@ class Timer(with_metaclass(MetaParams, object)):
     def _reset_when(self, ddate=datetime.min):
         self._when = self._rstwhen
         self._dtwhen = self._dwhen = None
-
         self._lastcall = ddate
+        print("timer check reset: ddate({})".format(ddate))
+
 
     def _check_month(self, ddate):
         if not self.p.monthdays:
@@ -189,6 +190,7 @@ class Timer(with_metaclass(MetaParams, object)):
                 self._dtwhen = dtwhen = date2num(dwhen, tz=self._tzdata)
 
         if dt < dtwhen:
+            print("timer check failed: dt({}) < dtwhen({})".format(dt, dtwhen))
             return False  # timer target not met
 
         self.lastwhen = dwhen  # record when the last timer "when" happened
@@ -222,4 +224,5 @@ class Timer(with_metaclass(MetaParams, object)):
 
                     break
 
+        print("timer check succeeded: dt({})".format(dt))
         return True  # timer target was met
