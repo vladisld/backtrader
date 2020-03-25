@@ -24,7 +24,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import bisect
 import collections
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from itertools import islice
 
 from .feed import AbstractDataBase
@@ -223,3 +223,9 @@ class Timer(with_metaclass(MetaParams, object)):
                     break
 
         return True  # timer target was met
+
+
+class RTTimer(Timer):
+    def check(self, dt):
+        now = datetime.now(tz=timezone.utc)
+        Timer.check(self, date2num(now))
