@@ -189,7 +189,6 @@ class Timer(with_metaclass(MetaParams, object)):
                 self._dtwhen = dtwhen = date2num(dwhen, tz=self._tzdata)
 
         if dt < dtwhen:
-            print("timer check failed: dt({}) < dtwhen({})".format(dt, dtwhen))
             return False  # timer target not met
 
         self.lastwhen = dwhen  # record when the last timer "when" happened
@@ -222,5 +221,5 @@ class Timer(with_metaclass(MetaParams, object)):
                         self._dwhen = num2date(dtwhen, tz=self._tzdata)
 
                     break
-        print("timer check succeeded: dt({})".format(dt))
+
         return True  # timer target was met
