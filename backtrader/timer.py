@@ -232,8 +232,8 @@ class RTTimer(Timer):
         from crontab import CronTab
         ct = CronTab(kwargs['crontab'])
         td = timedelta(seconds=ct.next(default_utc=True))
-        self._dtwhen = datetime.utcnow() + td
+        self._dtnext = datetime.utcnow() + td
 
     def check(self, dt):
         now = datetime.utcnow()
-        return now >= self._dtwhen
+        return now >= self._dtnext
