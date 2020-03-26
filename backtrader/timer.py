@@ -236,4 +236,6 @@ class RTTimer(Timer):
 
     def check(self, dt):
         now = datetime.utcnow()
-        return now >= self._dtnext
+        result = now >= self._dtnext
+        print(f'timer {now} >= {self._dtnext} => {result}')
+        return result
