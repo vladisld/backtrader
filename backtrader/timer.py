@@ -92,7 +92,6 @@ class Timer(with_metaclass(MetaParams, object)):
         self._dtwhen = self._dwhen = None
         self._lastcall = ddate
 
-
     def _check_month(self, ddate):
         if not self.p.monthdays:
             return True
@@ -226,6 +225,15 @@ class Timer(with_metaclass(MetaParams, object)):
 
 
 class RTTimer(Timer):
+
+    def __init__(self, *args, **kwargs):
+        Timer.__init__(self, *args, **kwargs)
+        assert 'crontab' in kwargs, 'only crontab spec is supported currently'
+        from crontab import CronTab
+        ct = CronTab(kwargs['crontab'])
+        td = timedelta(seconds=ct.next(default_utc=True))
+        self._dtwhen = datetime.utcnow() + td
+
     def check(self, dt):
-        now = datetime.now(tz=timezone.utc)
-        Timer.check(self, date2num(now))
+        now = datetime.utcnow()
+        return now >= self._dtwhen
