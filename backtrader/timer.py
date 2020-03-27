@@ -230,12 +230,17 @@ class RTTimer(Timer):
         Timer.__init__(self, *args, **kwargs)
         assert 'crontab' in kwargs, 'only crontab spec is supported currently'
         from crontab import CronTab
-        ct = CronTab(kwargs['crontab'])
-        td = timedelta(seconds=ct.next(default_utc=True))
+        self.ct = CronTab(kwargs['crontab'])
+        td = timedelta(seconds=self.ct.next(default_utc=True))
         self._dtnext = datetime.utcnow() + td
+        self.lastwhen= None
 
     def check(self, dt):
         now = datetime.utcnow()
-        result = now >= self._dtnext
-        print(f'timer {now} >= {self._dtnext} => {result}')
-        return result
+        if now >= self._dtnext:
+            self.lastwhen = self._dtnext  # record when the last timer "when" happened
+            td = timedelta(seconds=self.ct.next(default_utc=True))
+            self._dtnext = datetime.utcnow() + td
+            return True
+
+        return False

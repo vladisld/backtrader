@@ -439,12 +439,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
         return timer
 
     def _add_rttimer(self, owner, when,
-                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
-                   weekdays=[], weekcarry=False,
-                   monthdays=[], monthcarry=True,
-                   allow=None,
-                   tzdata=None, strats=False, cheat=False,
-                   *args, **kwargs):
+                     offset=datetime.timedelta(), repeat=datetime.timedelta(),
+                     weekdays=[], weekcarry=False,
+                     monthdays=[], monthcarry=True,
+                     allow=None,
+                     tzdata=None, strats=False, cheat=False,
+                     *args, **kwargs):
         '''Internal method to really create the rttimer (not started yet) which
         can be called by cerebro instances or other objects which can access
         cerebro'''
@@ -462,7 +462,6 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
         self._pretimers.append(timer)
         return timer
-
 
     def add_timer(self, when,
                   offset=datetime.timedelta(), repeat=datetime.timedelta(),
