@@ -62,11 +62,16 @@ class InfluxDB(feed.DataBase):
 
     def start(self):
         super(InfluxDB, self).start()
+        self.biter = None
+        self.preloaded = False
+
+    def _preload(self):
         try:
             self.ndb = idbclient(self.p.host, self.p.port, self.p.username,
                                  self.p.password, self.p.database)
         except InfluxDBClientError as err:
             print('Failed to establish connection to InfluxDB: %s' % err)
+            raise
 
         tf = '{multiple}{timeframe}'.format(
             multiple=(self.p.compression if self.p.compression else 1),
@@ -94,10 +99,30 @@ class InfluxDB(feed.DataBase):
             dbars = list(self.ndb.query(qstr).get_points())
         except InfluxDBClientError as err:
             print('InfluxDB query failed: %s' % err)
+            raise
 
         self.biter = iter(dbars)
 
+    def preload(self):
+        if not self.biter:
+            self._preload()
+
+        while self.load():
+            pass
+
+        self._last()
+        self.home()
+
+        self.biter = None
+        self.preloaded = True
+
     def _load(self):
+        if self.preloaded:
+            return False
+
+        if not self.biter:
+            self._preload()
+
         try:
             bar = next(self.biter)
         except StopIteration:
