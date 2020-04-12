@@ -42,9 +42,19 @@ from .tradingcal import (TradingCalendarBase, TradingCalendar,
                          PandasMarketCalendar)
 from .timer import Timer
 
+
+def run_strats(iterstrat):
+  c, s = iterstrat
+  predata = c.p.optdatas and c._dopreload and c._dorunonce
+  rets = c.runstrategies(s, predata=predata)
+  c = None
+  s = None
+  iterstrat = None
+  import gc
+  gc.collect()
+  return rets
+
 # Defined here to make it pickable. Ideally it could be defined inside Cerebro
-
-
 class OptReturn(object):
     def __init__(self, params, **kwargs):
         self.p = self.params = params
@@ -1138,9 +1148,12 @@ class Cerebro(with_metaclass(MetaParams, object)):
                     data._start()
                     if self._dopreload:
                         data.preload()
+                        import gc
+                        gc.collect()
 
             pool = multiprocessing.Pool(self.p.maxcpus or None)
-            for r in pool.imap(self, iterstrats):
+            _iterstrats = itertools.product([self], iterstrats)
+            for r in pool.imap(run_strats, _iterstrats,  chunksize = 1):
                 self.runstrats.append(r)
                 for cb in self.optcbs:
                     cb(r)  # callback receives finished strategy
