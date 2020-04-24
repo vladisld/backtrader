@@ -62,8 +62,8 @@ class InfluxDB(feed.DataBase):
 
     def start(self):
         super(InfluxDB, self).start()
-        self.biter = None
-        self.preloaded = False
+        self.biter = None  # bar iterator will be initialized in _preload only
+        self.preloaded = False  # indicates that preload was requested and has been completed
 
     def _preload(self):
         try:
@@ -77,26 +77,26 @@ class InfluxDB(feed.DataBase):
             multiple=(self.p.compression if self.p.compression else 1),
             timeframe=TIMEFRAMES.get(self.p.timeframe, 'd'))
 
-        if not self.p.startdate:
-            st = '<= now()'
+        if self.p.fromdate and self.p.todate:
+            tcond = "time >= '{fromdate}' AND time <= '{todate}'".format(fromdate=self.p.fromdate, todate=self.p.todate)
+        elif self.p.fromdate:
+            tcond = "time >= '{fromdate}'".format(fromdate=self.p.fromdate)
+        elif self.p.todate:
+            tcond = "time <= '{todate}'".format(todate=self.p.todate)
         else:
-            st = '>= \'%s\'' % self.p.startdate
+            tcond = "time <= now()"
 
-        # The query could already consider parameters like fromdate and todate
-        # to have the database skip them and not the internal code
-        qstr = ('SELECT mean("{open_f}") AS "open", mean("{high_f}") AS "high", '
-                'mean("{low_f}") AS "low", mean("{close_f}") AS "close", '
-                'mean("{vol_f}") AS "volume", mean("{oi_f}") AS "openinterest" '
-                'FROM "{dataname}" '
-                'WHERE time {begin} '
-                'GROUP BY time({timeframe}) fill(none)').format(
-                    open_f=self.p.open, high_f=self.p.high,
-                    low_f=self.p.low, close_f=self.p.close,
-                    vol_f=self.p.volume, oi_f=self.p.ointerest,
-                    timeframe=tf, begin=st, dataname=self.p.dataname)
-
+        qstr = 'SELECT FIRST("{open_f}") AS "open", MAX("{high_f}") as "high", MIN("{low_f}") as "low", ' \
+               'LAST("{close_f}") AS "close", SUM("{vol_f}") as "volume", SUM("{oi_f}") as "openinterest" ' \
+               'FROM "{dataname}" ' \
+               'WHERE {tcond} ' \
+               'GROUP BY time({timeframe}) fill(none) ' \
+               'ORDER BY time ASC'.format(open_f=self.p.open, high_f=self.p.high,
+                                          low_f=self.p.low, close_f=self.p.close,
+                                          vol_f=self.p.volume, oi_f=self.p.ointerest,
+                                          dataname=self.p.dataname, tcond=tcond, timeframe=tf)
         try:
-            dbars = list(self.ndb.query(qstr).get_points())
+            dbars = list(self.ndb.query(qstr, epoch="s").get_points())
         except InfluxDBClientError as err:
             print('InfluxDB query failed: %s' % err)
             raise
@@ -117,6 +117,8 @@ class InfluxDB(feed.DataBase):
         self.preloaded = True
 
     def _load(self):
+        # _load method will not be called by cerebro if preloading was activated
+        # just keep that in mind
         if self.preloaded:
             return False
 
@@ -128,13 +130,14 @@ class InfluxDB(feed.DataBase):
         except StopIteration:
             return False
 
-        self.l.datetime[0] = date2num(dt.datetime.strptime(bar['time'],
-                                                           '%Y-%m-%dT%H:%M:%SZ'))
+        self.l.datetime[0] = date2num(dt.datetime.fromtimestamp(bar["time"]))
+        vol = bar["volume"]
+        oi = bar["openinterest"]
 
-        self.l.open[0] = bar['open']
-        self.l.high[0] = bar['high']
-        self.l.low[0] = bar['low']
-        self.l.close[0] = bar['close']
-        self.l.volume[0] = bar['volume']
-
+        self.l.open[0] = bar["open"]
+        self.l.high[0] = bar["high"]
+        self.l.low[0] = bar["low"]
+        self.l.close[0] = bar["close"]
+        self.l.volume[0] = vol if vol else 0.0
+        self.l.openinterest[0] = oi if oi else 0.0
         return True
