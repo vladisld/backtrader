@@ -47,11 +47,9 @@ def run_strats(iterstrat):
   c, s = iterstrat
   predata = c.p.optdatas and c._dopreload and c._dorunonce
   rets = c.runstrategies(s, predata=predata)
-  c = None
-  s = None
-  iterstrat = None
-  import gc
-  gc.collect()
+  # del c
+  # del s
+  # del iterstrat
   return rets
 
 # Defined here to make it pickable. Ideally it could be defined inside Cerebro
@@ -1198,7 +1196,7 @@ class Cerebro(with_metaclass(MetaParams, object)):
 
             pool = multiprocessing.Pool(self.p.maxcpus or None)
             _iterstrats = itertools.product([self], iterstrats)
-            for r in pool.imap(run_strats, _iterstrats,  chunksize = 1):
+            for r in pool.imap(run_strats, _iterstrats): #,  chunksize = 1):
                 self.runstrats.append(r)
                 for cb in self.optcbs:
                     cb(r)  # callback receives finished strategy
