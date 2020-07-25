@@ -2,7 +2,7 @@
 # -*- coding: utf-8; py-indent-offset:4 -*-
 ###############################################################################
 #
-# Copyright (C) 2015, 2016, 2017 Daniel Rodriguez
+# Copyright (C) 2015-2020 Daniel Rodriguez
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -770,6 +770,8 @@ class IBStore(with_metaclass(MetaSingleton, object)):
             self.iscash[tickerId] = True
             if not what:
                 what = 'BID'  # TRADES doesn't work
+            elif what == 'ASK':
+                self.iscash[tickerId] = 2
         else:
             what = what or 'TRADES'
 
@@ -838,7 +840,7 @@ class IBStore(with_metaclass(MetaSingleton, object)):
 
             self.cancelQueue(q, True)
 
-    def reqMktData(self, contract):
+    def reqMktData(self, contract, what=None):
         '''Creates a MarketData subscription
 
         Params:
@@ -854,6 +856,8 @@ class IBStore(with_metaclass(MetaSingleton, object)):
         if contract.m_secType in ['CASH', 'CFD']:
             self.iscash[tickerId] = True
             ticks = ''  # cash markets do not get RTVOLUME
+            if what == 'ASK':
+                self.iscash[tickerId] = 2
 
         # q.put(None)  # to kickstart backfilling
         # Can request 233 also for cash ... nothing will arrive

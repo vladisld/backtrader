@@ -2,7 +2,7 @@
 # -*- coding: utf-8; py-indent-offset:4 -*-
 ###############################################################################
 #
-# Copyright (C) 2015, 2016, 2017 Daniel Rodriguez
+# Copyright (C) 2015-2020 Daniel Rodriguez
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -114,6 +114,8 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
           - 'BID' for CASH assets
           - 'TRADES' for any other
 
+        Use 'ASK' for the Ask quote of cash assets
+        
         Check the IB API docs if another value is wished
 
       - ``rtbar`` (default: ``False``)
@@ -411,16 +413,14 @@ class IBData(with_metaclass(MetaIBData, DataBase)):
     def reqdata(self):
         '''request real-time data. checks cash vs non-cash) and param useRT'''
         if self.contract is None or self._subcription_valid:
-            print('req data ignored: {}'.format(self._name))
             return
 
         if self._usertvol:
-            self.qlive = self.ib.reqMktData(self.contract)
+            self.qlive = self.ib.reqMktData(self.contract, self.p.what)
         else:
             self.qlive = self.ib.reqRealTimeBars(self.contract)
 
         self._subcription_valid = True
-        print('req data: {}'.format(self._name))
         return self.qlive
 
     def canceldata(self):
