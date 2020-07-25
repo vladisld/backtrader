@@ -47,9 +47,6 @@ def run_strats(iterstrat):
   c, s = iterstrat
   predata = c.p.optdatas and c._dopreload and c._dorunonce
   rets = c.runstrategies(s, predata=predata)
-  # del c
-  # del s
-  # del iterstrat
   return rets
 
 # Defined here to make it pickable. Ideally it could be defined inside Cerebro
